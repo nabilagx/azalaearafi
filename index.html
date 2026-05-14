@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dream Tale: My Cinderella Story</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Quicksand', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .font-fairy { font-family: 'Dancing Script', cursive; }
+        .bg-sparkle {
+            background-image: radial-gradient(circle, #ff69b4 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+        .sticker { cursor: move; touch-action: none; user-select: none; z-index: 50; }
+        .hidden { display: none !important; }
+        .screen { min-height: 100dvh; width: 100%; position: relative; }
+        #photo-strip { transform-origin: top center; }
+        .slot.active { outline: 4px solid #ec4899; outline-offset: 2px; }
+    </style>
+</head>
+<body class="bg-rose-50 bg-sparkle">
+
+    <!-- SCREEN 1: INTRO -->
+    <div id="screen-intro" class="screen flex flex-col items-center justify-center p-6 text-center">
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-rose-200 max-w-md w-full relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="bg-rose-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                    <i data-lucide="sparkles" class="text-rose-500 w-10 h-10"></i>
+                </div>
+                <h1 class="text-4xl font-black text-rose-600 mb-2 tracking-tight uppercase">Dream Tale</h1>
+                <p class="text-rose-400 mb-10 font-medium italic">"Jadikan ceritamu menjadi nyata..."</p>
+                <button type="button" onclick="showScreen(event, 'setup')" class="w-full py-5 bg-gradient-to-r from-rose-500 to-pink-400 text-white rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-all">MULAI SEKARANG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: SETUP -->
+    <div id="screen-setup" class="screen flex flex-col items-center justify-center p-6 hidden">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl max-w-xl w-full">
+            <h2 class="text-2xl font-bold text-rose-600 text-center mb-8 font-fairy text-3xl">Siapkan Pemeran Utama ✨</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="flex flex-col items-center space-y-4 bg-rose-50 p-6 rounded-3xl border-2 border-rose-100">
+                    <span class="text-xs font-bold text-rose-400 uppercase tracking-widest">Karakter Aku</span>
+                    <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200">
+                        <img id="preview-murid" src="https://api.dicebear.com/7.x/adventurer/svg?seed=cinderella" class="w-full h-full object-cover">
+                    </div>
+                    <input type="text" id="name-murid" value="Tuan Putri" class="w-full px-4 py-2 rounded-xl border border-rose-200 text-center text-rose-700 outline-none">
+                    <input type="file" id="file-murid" class="hidden" accept="image/*" onchange="handleImageUpload(this, 'preview-murid')">
+                    <label for="file-murid" class="cursor-pointer px-4 py-2 bg-rose-500 text-white text-[10px] rounded-full font-bold shadow-sm uppercase">GANTI FOTO</label>
+                </div>
+                <div class="flex flex-col items-center space-y-4 bg-blue-50 p-6 rounded-3xl border-2 border-blue-100">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Karakter Idola</span>
+                    <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200">
+                        <img id="preview-idol" src="https://api.dicebear.com/7.x/adventurer/svg?seed=prince" class="w-full h-full object-cover">
+                    </div>
+                    <input type="text" id="name-idol" value="Pangeran" class="w-full px-4 py-2 rounded-xl border border-blue-200 text-center text-blue-700 outline-none">
+                    <input type="file" id="file-idol" class="hidden" accept="image/*" onchange="handleImageUpload(this, 'preview-idol')">
+                    <label for="file-idol" class="cursor-pointer px-4 py-2 bg-blue-500 text-white text-[10px] rounded-full font-bold shadow-sm uppercase">GANTI FOTO</label>
+                </div>
+            </div>
+            <button type="button" onclick="startStory(event)" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg">LANJUT KE CERITA <i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: VISUAL NOVEL -->
+    <div id="screen-playing" class="screen w-full relative overflow-hidden bg-black hidden">
+        <div id="game-bg" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60"></div>
+        <div class="absolute inset-0 flex items-end justify-between px-6 pb-48 pointer-events-none">
+            <div id="char-left" class="w-1/2 h-[400px] transition-all duration-500 transform opacity-0"><img id="img-char-left" src="" class="w-full h-full object-contain filter drop-shadow-2xl"></div>
+            <div id="char-right" class="w-1/2 h-[400px] transition-all duration-500 transform opacity-0"><img id="img-char-right" src="" class="w-full h-full object-contain filter drop-shadow-2xl"></div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-[94%] max-w-2xl z-30">
+            <div id="dialogue-box" onclick="nextDialogue(event)" class="bg-white/95 backdrop-blur-md p-6 rounded-[2.5rem] shadow-2xl border-4 border-rose-300">
+                <div class="mb-2"><span id="char-name-tag" class="inline-block px-5 py-1.5 rounded-full text-xs font-black text-white bg-rose-500">NAMA</span></div>
+                <p id="dialogue-text" class="text-lg text-gray-800 font-medium leading-relaxed italic">"..."</p>
+                <div class="mt-4 flex justify-end animate-pulse text-rose-500 font-bold text-[10px]">TAP UNTUK LANJUT <i data-lucide="chevron-right" class="inline w-4 h-4"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: ENDING & TIKTOK -->
+    <div id="screen-ending" class="screen bg-rose-600 flex flex-col items-center justify-center p-4 hidden">
+        <div class="w-full max-w-lg bg-white p-6 rounded-[3rem] shadow-2xl text-center">
+            <h2 class="text-3xl font-black text-rose-600 mb-6 font-fairy">Happy Ending</h2>
+            <div class="aspect-[9/16] w-full bg-black rounded-[2rem] overflow-hidden mb-6 relative">
+                <iframe id="tiktok-frame" src="" class="absolute inset-0 w-full h-full" allowFullScreen scrolling="no" allow="autoplay; clipboard-write; encrypted-media"></iframe>
+            </div>
+            <button type="button" onclick="showScreen(event, 'proposal')" class="w-full py-4 bg-rose-500 text-white rounded-2xl font-bold flex items-center justify-center gap-2 uppercase tracking-widest">Pesan Terakhir <i data-lucide="heart" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <!-- SCREEN 5: PROPOSAL -->
+    <div id="screen-proposal" class="screen bg-rose-50 flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full border-4 border-rose-200">
+            <div class="w-28 h-28 mx-auto mb-6 rounded-full overflow-hidden border-4 border-rose-400 shadow-lg">
+                <img id="proposal-idol-img" src="" class="w-full h-full object-cover">
+            </div>
+            <h2 class="text-2xl font-black text-rose-600 mb-8 italic font-fairy text-3xl">"<span class="user-name">kamu</span>, maukah kamu menua bersamaku?"</h2>
+            <div class="flex flex-col gap-4">
+                <button type="button" id="btn-ya" onclick="startCalculator(event)" class="py-4 bg-rose-500 text-white rounded-2xl font-bold text-xl shadow-lg transition-all transform hover:scale-110">YA, AKU MAU! ❤️</button>
+                <button type="button" id="btn-gak" onclick="shrinkGak(event)" class="py-4 bg-gray-200 text-gray-500 rounded-2xl font-bold text-lg transition-all">Gak mau...</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 6: CALCULATOR -->
+    <div id="screen-calculator" class="screen bg-gradient-to-br from-rose-400 to-pink-500 flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="bg-white/95 p-10 rounded-[3rem] shadow-2xl max-w-md w-full">
+            <h2 class="text-2xl font-bold text-rose-600 mb-2 uppercase">Kalkulator Cinta Halu</h2>
+            <div class="relative w-40 h-40 mx-auto flex items-center justify-center mb-8">
+                <div class="absolute inset-0 bg-rose-100 rounded-full animate-pulse"></div>
+                <div id="love-score" class="relative z-10 text-5xl font-black text-rose-600">0%</div>
+            </div>
+            <button type="button" onclick="showScreen(event, 'photobooth')" class="w-full py-4 bg-rose-500 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 uppercase text-xs tracking-widest">ABADIKAN MEMORI <i data-lucide="camera" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <!-- SCREEN 7: PHOTOBOOTH -->
+    <div id="screen-photobooth" class="screen bg-gray-100 p-4 flex flex-col lg:flex-row items-center lg:justify-center gap-6 hidden overflow-y-auto pt-10">
+        <div class="flex flex-col items-center gap-4 flex-shrink-0">
+            <div id="photo-strip" class="bg-white p-4 shadow-2xl flex flex-col gap-3 w-64 items-center relative rounded-sm border border-gray-200">
+                <div class="text-[10px] font-black text-rose-400 mb-1 uppercase tracking-widest"><span class="user-name">Putri</span> x <span class="idol-name">Pangeran</span></div>
+                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100 active" onclick="triggerSlot(0)">
+                    <img id="img-0" src="" class="hidden w-full h-full object-cover">
+                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4 italic">Tap untuk foto 1</div>
+                </div>
+                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100" onclick="triggerSlot(1)">
+                    <img id="img-1" src="" class="hidden w-full h-full object-cover">
+                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4 italic">Tap untuk foto 2</div>
+                </div>
+                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100" onclick="triggerSlot(2)">
+                    <img id="img-2" src="" class="hidden w-full h-full object-cover">
+                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4 italic">Tap untuk foto 3</div>
+                </div>
+                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100" onclick="triggerSlot(3)">
+                    <img id="img-3" src="" class="hidden w-full h-full object-cover">
+                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4 italic">Tap untuk foto 4</div>
+                </div>
+                <div class="text-[8px] text-gray-400 italic font-bold">Love Score: <span id="final-love">0%</span> • Dream Tale</div>
+                <div id="sticker-container" class="absolute inset-0 pointer-events-none"></div>
+            </div>
+            <button type="button" onclick="downloadStrip(event)" class="flex items-center gap-2 px-8 py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg mb-10"><i data-lucide="download" class="w-5 h-5"></i> SIMPAN KE HP</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-xl w-full max-w-sm flex flex-col gap-6 mb-10">
+            <div>
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm"><i data-lucide="camera" class="w-4 h-4 text-rose-500"></i> Ambil Foto</h3>
+                <div id="camera-box" class="aspect-video bg-black rounded-xl mb-3 relative overflow-hidden">
+                    <video id="webcam" autoplay playsinline class="w-full h-full object-cover scale-x-[-1]"></video>
+                    <div id="camera-error" class="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-[10px] p-4 text-center hidden">
+                        Kamera tidak tersedia di mode ini.<br>Silakan pakai tombol Upload HP.
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btn-capture" onclick="captureFromCamera(event)" class="py-3 bg-rose-500 text-white rounded-xl font-bold text-xs uppercase tracking-tighter">CEKREK!</button>
+                    <button type="button" onclick="document.getElementById('file-slot').click()" class="py-3 bg-gray-200 text-gray-600 rounded-xl font-bold text-xs uppercase tracking-tighter">Upload HP</button>
+                </div>
+                <input type="file" id="file-slot" class="hidden" accept="image/*" onchange="handleSlotFile(this)">
+            </div>
+            <div>
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm"><i data-lucide="palette" class="w-4 h-4 text-blue-500"></i> Warna Bingkai</h3>
+                <div class="flex gap-4">
+                    <button type="button" onclick="setFrame('white', 'rose-400')" class="w-10 h-10 rounded-full bg-white border-2 border-gray-200"></button>
+                    <button type="button" onclick="setFrame('rose-100', 'rose-500')" class="w-10 h-10 rounded-full bg-rose-100"></button>
+                    <button type="button" onclick="setFrame('blue-100', 'blue-500')" class="w-10 h-10 rounded-full bg-blue-100"></button>
+                    <button type="button" onclick="setFrame('gray-900', 'white')" class="w-10 h-10 rounded-full bg-gray-900"></button>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm"><i data-lucide="smile" class="w-4 h-4 text-yellow-500"></i> Tambah Stiker</h3>
+                <div class="flex flex-wrap gap-3 text-3xl">
+                    <button type="button" onclick="addSticker('💖')">💖</button>
+                    <button type="button" onclick="addSticker('✨')">✨</button>
+                    <button type="button" onclick="addSticker('👑')">👑</button>
+                    <button type="button" onclick="addSticker('🎀')">🎀</button>
+                    <button type="button" onclick="addSticker('🐱')">🐱</button>
+                </div>
+            </div>
+            <button type="button" onclick="window.location.reload()" class="text-gray-300 text-[10px] flex items-center justify-center gap-1 mt-4 italic"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Mulai Dari Awal</button>
+        </div>
+    </div>
+
+    <script>
+        const STORY = [
+            { bg: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000", char: "murid", side: "left", text: "Duh, sepatuku di mana ya? Mengapa bisa hilang sebelah..." },
+            { bg: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000", char: "idol", side: "right", text: "Maaf, apakah benda indah ini milikmu?" },
+            { bg: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=1000", char: "murid", side: "left", text: "Eh?! Bagaimana bisa Kakak menemukannya?" },
+            { bg: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=1000", char: "idol", side: "right", text: "Nanti malam ada pesta di istana. Aku sangat berharap kamu hadir." },
+            { bg: "https://images.unsplash.com/photo-1522673607200-1648832cee98?auto=format&fit=crop&q=80&w=1000", char: "idol", side: "right", text: "Maukah kamu mendampingiku selamanya?" }
+        ];
+
+        let currentStep = 0;
+        let userData = { murid: "", idol: "", muridImg: "", idolImg: "" };
+        let activeSlot = 0;
+        let noScale = 1;
+        let yesScale = 1;
+        let webcamStream = null;
+
+        lucide.createIcons();
+
+        // Anti-Reset Navigation
+        function showScreen(event, id) {
+            if(event) event.preventDefault();
+            document.querySelectorAll('.screen').forEach(div => div.classList.add('hidden'));
+            document.getElementById('screen-' + id).classList.remove('hidden');
+            window.scrollTo(0,0);
+            
+            if(id === 'photobooth') {
+                // Beri jeda sedikit agar render layar selesai baru nyalakan kamera
+                setTimeout(initCamera, 300);
+            } else {
+                stopCamera();
+            }
+        }
+
+        function handleImageUpload(input, previewId) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById(previewId).src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function startStory(e) {
+            if(e) e.preventDefault();
+            userData.murid = document.getElementById('name-murid').value;
+            userData.idol = document.getElementById('name-idol').value;
+            userData.muridImg = document.getElementById('preview-murid').src;
+            userData.idolImg = document.getElementById('preview-idol').src;
+            
+            document.querySelectorAll('.user-name').forEach(el => el.innerText = userData.murid);
+            document.querySelectorAll('.idol-name').forEach(el => el.innerText = userData.idol);
+            document.getElementById('proposal-idol-img').src = userData.idolImg;
+            document.getElementById('img-char-left').src = userData.muridImg;
+            document.getElementById('img-char-right').src = userData.idolImg;
+
+            showScreen(e, 'playing');
+            updateDialogue();
+        }
+
+        function updateDialogue() {
+            const data = STORY[currentStep];
+            document.getElementById('game-bg').style.backgroundImage = `url(${data.bg})`;
+            document.getElementById('dialogue-text').innerText = `"${data.text}"`;
+            
+            const nameTag = document.getElementById('char-name-tag');
+            nameTag.innerText = data.char === 'murid' ? userData.murid : userData.idol;
+            nameTag.className = `inline-block px-5 py-1.5 rounded-full text-xs font-black text-white ${data.side === 'left' ? 'bg-rose-500' : 'bg-blue-500'}`;
+
+            const left = document.getElementById('char-left');
+            const right = document.getElementById('char-right');
+            
+            left.classList.toggle('opacity-100', data.side === 'left');
+            left.classList.toggle('opacity-30', data.side !== 'left');
+            right.classList.toggle('opacity-100', data.side === 'right');
+            right.classList.toggle('opacity-30', data.side !== 'right');
+        }
+
+        function nextDialogue(e) {
+            if(e) e.preventDefault();
+            if (currentStep < STORY.length - 1) {
+                currentStep++;
+                updateDialogue();
+            } else {
+                document.getElementById('tiktok-frame').src = "https://www.tiktok.com/embed/v2/7639315759595851026";
+                showScreen(e, 'ending');
+            }
+        }
+
+        function shrinkGak(e) {
+            if(e) e.preventDefault();
+            noScale -= 0.15;
+            yesScale += 0.2;
+            const btnNo = document.getElementById('btn-gak');
+            const btnYes = document.getElementById('btn-ya');
+            btnNo.style.transform = `scale(${noScale})`;
+            btnYes.style.transform = `scale(${yesScale})`;
+            if (noScale <= 0.1) btnNo.style.display = 'none';
+        }
+
+        function startCalculator(e) {
+            showScreen(e, 'calculator');
+            let count = 0;
+            const target = Math.floor(Math.random() * 21) + 80;
+            const interval = setInterval(() => {
+                count++;
+                document.getElementById('love-score').innerText = count + '%';
+                if (count >= target) {
+                    clearInterval(interval);
+                    document.getElementById('final-love').innerText = count + '%';
+                }
+            }, 30);
+        }
+
+        async function initCamera() {
+            try {
+                if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("Kamera tidak didukung");
+                }
+                if(webcamStream) stopCamera();
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                document.getElementById('webcam').srcObject = webcamStream;
+                document.getElementById('camera-error').classList.add('hidden');
+                document.getElementById('btn-capture').disabled = false;
+            } catch (err) {
+                console.warn("Kamera gagal:", err);
+                document.getElementById('camera-error').classList.remove('hidden');
+                document.getElementById('btn-capture').disabled = true;
+            }
+        }
+
+        function stopCamera() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+        }
+
+        function triggerSlot(idx) {
+            activeSlot = idx;
+            document.querySelectorAll('.slot').forEach((s, i) => {
+                s.classList.toggle('active', i === idx);
+            });
+        }
+
+        function captureFromCamera(e) {
+            if(e) e.preventDefault();
+            const video = document.getElementById('webcam');
+            if(!video.srcObject) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            updateSlotImage(canvas.toDataURL('image/png'));
+        }
+
+        function handleSlotFile(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => updateSlotImage(e.target.result);
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateSlotImage(data) {
+            const imgEl = document.getElementById('img-' + activeSlot);
+            imgEl.src = data;
+            imgEl.classList.remove('hidden');
+            imgEl.nextElementSibling.classList.add('hidden');
+            if(activeSlot < 3) triggerSlot(activeSlot + 1);
+        }
+
+        function setFrame(bgColor, textColor) {
+            const strip = document.getElementById('photo-strip');
+            strip.className = `bg-${bgColor} p-4 shadow-2xl flex flex-col gap-3 w-64 items-center relative rounded-sm border border-gray-200`;
+            strip.querySelector('div').className = `text-[10px] font-black text-${textColor} mb-1 uppercase tracking-widest`;
+        }
+
+        function addSticker(emoji) {
+            const container = document.getElementById('sticker-container');
+            const div = document.createElement('div');
+            div.className = 'sticker absolute text-4xl pointer-events-auto';
+            div.innerText = emoji;
+            div.style.left = '20px';
+            div.style.top = '100px';
+            
+            let isDragging = false;
+            let startX, startY;
+
+            const onStart = (e) => {
+                isDragging = true;
+                const touch = e.touches ? e.touches[0] : e;
+                startX = touch.clientX - div.offsetLeft;
+                startY = touch.clientY - div.offsetTop;
+                e.stopPropagation();
+            };
+
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const touch = e.touches ? e.touches[0] : e;
+                div.style.left = (touch.clientX - startX) + 'px';
+                div.style.top = (touch.clientY - startY) + 'px';
+                e.preventDefault();
+            };
+
+            const onEnd = () => isDragging = false;
+
+            div.addEventListener('mousedown', onStart);
+            div.addEventListener('touchstart', onStart, {passive: false});
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('touchmove', onMove, {passive: false});
+            window.addEventListener('mouseup', onEnd);
+            window.addEventListener('touchend', onEnd);
+            
+            container.appendChild(div);
+        }
+
+        function downloadStrip(e) {
+            if(e) e.preventDefault();
+            const strip = document.getElementById('photo-strip');
+            html2canvas(strip, { 
+                useCORS: true, 
+                scale: 2,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'DreamTale_Memory.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
