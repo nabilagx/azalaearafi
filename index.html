@@ -13,6 +13,7 @@
         body { font-family: 'Quicksand', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .font-fairy { font-family: 'Dancing Script', cursive; }
         
+        /* Patterns */
         .motif-checkers { background-image: repeating-conic-gradient(#fff 0% 25%, #ffe4e6 0% 50%); background-size: 20px 20px; }
         .motif-stars { background-color: #fff1f2; background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0l2.5 7.5H20l-6 4.5 2.5 7.5-6.5-5-6.5 5 2.5-7.5-6-4.5h7.5L10 0z' fill='%23f43f5e' fill-opacity='0.1'/%3E%3C/svg%3E"); }
         .motif-hearts { background-color: #fff; background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 25s-10-6-10-12a5 5 0 0 1 10 0 5 5 0 0 1 10 0c0 6-10 12-10 12z' fill='%23fb7185' fill-opacity='0.15'/%3E%3C/svg%3E"); }
@@ -22,13 +23,20 @@
         .hidden { display: none !important; }
         .screen { min-height: 100dvh; width: 100%; position: relative; }
         #photo-strip { transform-origin: top center; transition: all 0.3s ease; }
-        canvas { max-width: 100% !important; height: auto !important; }
         .slot.active { outline: 4px solid #f43f5e; outline-offset: 2px; }
         video { object-fit: cover; }
+        
+        /* Smooth transitions */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .btn-theme { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
+        .btn-theme:active { transform: scale(0.9); }
     </style>
 </head>
 <body class="bg-rose-50">
 
+    <!-- Screen Intro -->
     <div id="screen-intro" class="screen flex flex-col items-center justify-center p-6 text-center">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-rose-200 max-w-md w-full relative overflow-hidden">
             <div class="bg-rose-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
@@ -40,7 +48,7 @@
         </div>
     </div>
 
-    <!-- Setup Karakter -->
+    <!-- -->
     <div id="screen-setup" class="screen flex flex-col items-center justify-center p-6 hidden">
         <div class="bg-white p-8 rounded-[2.5rem] shadow-xl max-w-xl w-full">
             <h2 class="text-2xl font-bold text-rose-600 text-center mb-8 font-fairy text-3xl">Siapkan Karakter ✨</h2>
@@ -66,7 +74,7 @@
         </div>
     </div>
 
-    <!-- Screen Playing -->
+    <!-- -->
     <div id="screen-playing" class="screen w-full relative overflow-hidden bg-black hidden">
         <div id="game-bg" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 opacity-60"></div>
         <div class="absolute inset-0 flex items-end justify-between px-6 pb-48 pointer-events-none">
@@ -82,7 +90,7 @@
         </div>
     </div>
 
-    <!-- Screen Ending (Video) -->
+    <!-- -->
     <div id="screen-ending" class="screen bg-rose-600 flex flex-col items-center justify-center p-4 hidden">
         <div class="w-full max-w-lg bg-white p-6 rounded-[3rem] shadow-2xl">
             <h2 class="text-3xl font-black text-rose-600 text-center mb-6 font-fairy">Happy Ending</h2>
@@ -93,7 +101,6 @@
         </div>
     </div>
 
-    <!-- Screen Proposal (Random Message) -->
     <div id="screen-proposal" class="screen bg-rose-50 flex flex-col items-center justify-center p-6 hidden">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full border-4 border-rose-200 text-center">
             <div class="w-28 h-28 mx-auto mb-6 rounded-full overflow-hidden border-4 border-rose-400">
@@ -107,81 +114,115 @@
         </div>
     </div>
 
-    <!-- Screen Calculator -->
+    <!-- -->
     <div id="screen-calculator" class="screen bg-rose-400 flex flex-col items-center justify-center p-6 hidden">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-md w-full text-center">
-            <h2 class="text-2xl font-bold text-rose-600 mb-2 uppercase">Love Score Calculator</h2>
+            <h2 class="text-2xl font-bold text-rose-600 mb-2 uppercase text-xs tracking-widest">Love Score Calculator</h2>
             <div class="relative w-40 h-40 mx-auto flex items-center justify-center mb-8">
                 <div class="absolute inset-0 bg-rose-100 rounded-full animate-pulse"></div>
                 <div id="love-score" class="relative z-10 text-5xl font-black text-rose-600">0%</div>
             </div>
-            <button onclick="showScreen(event, 'photobooth')" class="w-full py-4 bg-rose-500 text-white rounded-2xl font-bold shadow-lg">ABADIKAN MEMORI <i data-lucide="camera" class="inline w-5 h-5"></i></button>
+            <button onclick="showScreen(event, 'photobooth')" class="w-full py-4 bg-rose-500 text-white rounded-2xl font-bold shadow-lg uppercase tracking-wider text-sm">Abadikan Memori <i data-lucide="camera" class="inline w-4 h-4"></i></button>
         </div>
     </div>
 
-    <!-- Screen Photobooth -->
-    <div id="screen-photobooth" class="screen bg-gray-100 p-4 flex flex-col lg:flex-row items-center lg:justify-center gap-6 hidden overflow-y-auto pt-10">
+    <!-- -->
+    <div id="screen-photobooth" class="screen bg-slate-100 p-4 flex flex-col lg:flex-row items-center lg:justify-center gap-8 hidden overflow-y-auto pt-10">
+        
         <!-- Preview Strip -->
-        <div class="flex flex-col items-center gap-4 flex-shrink-0">
-            <div id="photo-strip" class="motif-hearts p-4 shadow-2xl flex flex-col gap-3 w-64 items-center relative rounded-sm border border-gray-200">
-                <div class="text-[10px] font-black text-rose-600 mb-1 uppercase tracking-widest"><span class="user-name">Putri</span> x <span class="idol-name">Pangeran</span></div>
-                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100 active" onclick="triggerSlot(0)">
+        <div class="flex flex-col items-center gap-6 flex-shrink-0 fade-in">
+            <div id="photo-strip" class="bg-white p-4 shadow-2xl flex flex-col gap-3 w-64 items-center relative rounded-sm border border-gray-200">
+                <div class="text-[10px] font-black text-rose-500 mb-1 uppercase tracking-widest flex items-center gap-1">
+                    <span class="user-name">Putri</span> <i data-lucide="heart" class="w-2 h-2 fill-rose-500"></i> <span class="idol-name">Pangeran</span>
+                </div>
+                
+                <!-- Slots -->
+                <div class="slot w-52 h-36 bg-gray-100 relative overflow-hidden border border-black/5 active" onclick="triggerSlot(0)">
                     <img id="img-0" src="" class="hidden w-full h-full object-cover">
-                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4">Tap untuk foto 1</div>
+                    <div class="placeholder flex items-center justify-center h-full text-gray-300 text-[10px] uppercase font-bold">Slot 1</div>
                 </div>
-                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100" onclick="triggerSlot(1)">
+                <div class="slot w-52 h-36 bg-gray-100 relative overflow-hidden border border-black/5" onclick="triggerSlot(1)">
                     <img id="img-1" src="" class="hidden w-full h-full object-cover">
-                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4">Tap untuk foto 2</div>
+                    <div class="placeholder flex items-center justify-center h-full text-gray-300 text-[10px] uppercase font-bold">Slot 2</div>
                 </div>
-                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100" onclick="triggerSlot(2)">
+                <div class="slot w-52 h-36 bg-gray-100 relative overflow-hidden border border-black/5" onclick="triggerSlot(2)">
                     <img id="img-2" src="" class="hidden w-full h-full object-cover">
-                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4">Tap untuk foto 3</div>
+                    <div class="placeholder flex items-center justify-center h-full text-gray-300 text-[10px] uppercase font-bold">Slot 3</div>
                 </div>
-                <div class="slot w-52 h-36 bg-gray-50 relative overflow-hidden border border-gray-100" onclick="triggerSlot(3)">
+                <div class="slot w-52 h-36 bg-gray-100 relative overflow-hidden border border-black/5" onclick="triggerSlot(3)">
                     <img id="img-3" src="" class="hidden w-full h-full object-cover">
-                    <div class="placeholder flex items-center justify-center h-full text-gray-400 text-[10px] text-center px-4">Tap untuk foto 4</div>
+                    <div class="placeholder flex items-center justify-center h-full text-gray-300 text-[10px] uppercase font-bold">Slot 4</div>
                 </div>
-                <div class="text-[8px] text-rose-500 italic font-bold">Love: <span id="final-love">0%</span> • Dream Tale</div>
+                
+                <div class="text-[8px] text-gray-400 font-bold italic tracking-tighter">Love: <span id="final-love">0%</span> • Dream Tale • 2024</div>
                 <div id="sticker-container" class="absolute inset-0 pointer-events-none"></div>
             </div>
-            <button onclick="downloadStrip(event)" class="px-8 py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg mb-10 flex gap-2"><i data-lucide="download" class="w-5 h-5"></i> SIMPAN KE HP</button>
+            
+            <button onclick="downloadStrip(event)" class="w-full py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-green-700 transition-colors">
+                <i data-lucide="download" class="w-5 h-5"></i> SIMPAN KE HP
+            </button>
         </div>
 
-        <!-- Controls -->
-        <div class="bg-white p-6 rounded-3xl shadow-xl w-full max-w-sm flex flex-col gap-6 mb-10">
+        <!-- -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-sm flex flex-col gap-8 mb-10 border border-gray-100">
+            <!-- Camera Section -->
             <div>
-                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm"><i data-lucide="camera" class="w-4 h-4 text-rose-500"></i> Kamera Real</h3>
-                <video id="webcam" autoplay playsinline class="w-full aspect-video bg-black rounded-xl mb-3 scale-x-[-1]"></video>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="captureFromCamera()" class="py-3 bg-rose-500 text-white rounded-xl font-bold text-xs uppercase">AMBIL FOTO</button>
-                    <button type="button" onclick="document.getElementById('file-slot').click()" class="py-3 bg-gray-100 text-gray-600 rounded-xl font-bold text-xs uppercase">UPLOAD HP</button>
+                <h3 class="font-bold mb-4 flex items-center gap-2 text-sm text-gray-700"><i data-lucide="camera" class="w-4 h-4 text-rose-500"></i> Ambil Pose</h3>
+                <div class="aspect-video bg-black rounded-2xl overflow-hidden mb-4 shadow-inner ring-4 ring-gray-50">
+                    <video id="webcam" autoplay playsinline class="w-full h-full object-cover scale-x-[-1]"></video>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" onclick="captureFromCamera()" class="py-3 bg-rose-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md">FOTO POS {N}</button>
+                    <button type="button" onclick="document.getElementById('file-slot').click()" class="py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-[10px] uppercase tracking-widest">DARI HP</button>
                 </div>
                 <input type="file" id="file-slot" class="hidden" accept="image/*" onchange="handleSlotFile(this)">
             </div>
+
+            <!-- Customization Sections -->
             <div>
-                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm"><i data-lucide="palette" class="w-4 h-4 text-blue-500"></i> Motif Bingkai</h3>
-                <div class="grid grid-cols-4 gap-2">
-                    <button type="button" onclick="setMotif('motif-hearts')" class="motif-hearts w-full h-10 rounded-lg border"></button>
-                    <button type="button" onclick="setMotif('motif-checkers')" class="motif-checkers w-full h-10 rounded-lg border"></button>
-                    <button type="button" onclick="setMotif('motif-stars')" class="motif-stars w-full h-10 rounded-lg border"></button>
-                    <button type="button" onclick="setMotif('motif-polka')" class="motif-polka w-full h-10 rounded-lg border"></button>
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm text-gray-700"><i data-lucide="palette" class="w-4 h-4 text-blue-500"></i> Tema Bingkai</h3>
+                <!-- Motif List -->
+                <div class="mb-4">
+                    <p class="text-[10px] text-gray-400 font-bold mb-2 uppercase tracking-wide">Motif</p>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="setTheme('motif-hearts')" class="motif-hearts w-8 h-8 rounded-full border shadow-sm"></button>
+                        <button type="button" onclick="setTheme('motif-checkers')" class="motif-checkers w-8 h-8 rounded-full border shadow-sm"></button>
+                        <button type="button" onclick="setTheme('motif-stars')" class="motif-stars w-8 h-8 rounded-full border shadow-sm"></button>
+                        <button type="button" onclick="setTheme('motif-polka')" class="motif-polka w-8 h-8 rounded-full border shadow-sm"></button>
+                    </div>
+                </div>
+                <!-- Color List -->
+                <div>
+                    <p class="text-[10px] text-gray-400 font-bold mb-2 uppercase tracking-wide">Warna Polos</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="setColor('#FFFFFF')" class="btn-theme bg-white border-gray-200"></button>
+                        <button type="button" onclick="setColor('#FEE2E2')" class="btn-theme bg-red-100"></button>
+                        <button type="button" onclick="setColor('#DBEAFE')" class="btn-theme bg-blue-100"></button>
+                        <button type="button" onclick="setColor('#F3E8FF')" class="btn-theme bg-purple-100"></button>
+                        <button type="button" onclick="setColor('#ECFDF5')" class="btn-theme bg-emerald-100"></button>
+                        <button type="button" onclick="setColor('#FEF3C7')" class="btn-theme bg-amber-100"></button>
+                        <button type="button" onclick="setColor('#1F2937')" class="btn-theme bg-gray-800"></button>
+                    </div>
                 </div>
             </div>
+
             <div>
-                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm"><i data-lucide="smile" class="w-4 h-4 text-yellow-500"></i> Tambah Stiker (Drag & Drop)</h3>
-                <div class="flex flex-wrap gap-2 text-2xl">
-                    <button type="button" onclick="addSticker('💖')">💖</button>
-                    <button type="button" onclick="addSticker('✨')">✨</button>
-                    <button type="button" onclick="addSticker('🎀')">🎀</button>
-                    <button type="button" onclick="addSticker('🐱')">🐱</button>
-                    <button type="button" onclick="addSticker('🍒')">🍒</button>
-                    <button type="button" onclick="addSticker('🦋')">🦋</button>
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-sm text-gray-700"><i data-lucide="smile" class="w-4 h-4 text-yellow-500"></i> Stiker (Drag & Drop)</h3>
+                <div class="flex flex-wrap gap-3 text-3xl">
+                    <button type="button" onclick="addSticker('💖')" class="hover:scale-125 transition-transform">💖</button>
+                    <button type="button" onclick="addSticker('✨')" class="hover:scale-125 transition-transform">✨</button>
+                    <button type="button" onclick="addSticker('🎀')" class="hover:scale-125 transition-transform">🎀</button>
+                    <button type="button" onclick="addSticker('🐱')" class="hover:scale-125 transition-transform">🐱</button>
+                    <button type="button" onclick="addSticker('🦋')" class="hover:scale-125 transition-transform">🦋</button>
+                    <button type="button" onclick="addSticker('⭐')" class="hover:scale-125 transition-transform">⭐</button>
                 </div>
             </div>
-            <button type="button" onclick="window.location.reload()" class="text-gray-300 text-[10px] flex items-center justify-center gap-1 mt-4"><i data-lucide="refresh-cw" class="w-3 h-3"></i> MULAI DARI AWAL</button>
+
+            <button type="button" onclick="window.location.reload()" class="text-gray-300 text-[10px] flex items-center justify-center gap-1 border-t pt-4 font-bold uppercase tracking-widest"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Mulai Dari Awal</button>
         </div>
     </div>
 
+    <!-- -->
     <script>
         const STORY = [
             { bg: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000", char: "murid", side: "left", text: "Duh, sepatuku di mana ya? Mengapa bisa hilang sebelah..." },
@@ -302,7 +343,7 @@
             e.preventDefault();
             showScreen(null, 'calculator');
             let count = 0;
-            const target = Math.floor(Math.random() * 11) + 90; // Biar seneng kasih 90-100%
+            const target = Math.floor(Math.random() * 11) + 90;
             const interval = setInterval(() => {
                 count++;
                 document.getElementById('love-score').innerText = count + '%';
@@ -317,7 +358,7 @@
             try {
                 if(webcamStream) stopCamera();
                 webcamStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: 640, height: 480 } 
+                    video: { facingMode: 'user', width: 1280, height: 720 } 
                 });
                 document.getElementById('webcam').srcObject = webcamStream;
             } catch (err) {
@@ -347,7 +388,6 @@
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             
-            // Mirroring
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -372,9 +412,16 @@
             if(activeSlot < 3) triggerSlot(activeSlot + 1);
         }
 
-        function setMotif(motifClass) {
+        function setTheme(motifClass) {
             const strip = document.getElementById('photo-strip');
             strip.className = `${motifClass} p-4 shadow-2xl flex flex-col gap-3 w-64 items-center relative rounded-sm border border-gray-200`;
+            strip.style.backgroundColor = ''; 
+        }
+
+        function setColor(hex) {
+            const strip = document.getElementById('photo-strip');
+            strip.className = `p-4 shadow-2xl flex flex-col gap-3 w-64 items-center relative rounded-sm border border-gray-200`;
+            strip.style.backgroundColor = hex;
         }
 
         function addSticker(emoji) {
@@ -399,8 +446,6 @@
             const onMove = (e) => {
                 if (!isDragging) return;
                 const touch = e.touches ? e.touches[0] : e;
-                const strip = document.getElementById('photo-strip');
-                const rect = strip.getBoundingClientRect();
                 div.style.left = (touch.clientX - startX) + 'px';
                 div.style.top = (touch.clientY - startY) + 'px';
                 e.preventDefault();
@@ -423,11 +468,11 @@
             const strip = document.getElementById('photo-strip');
             html2canvas(strip, { 
                 useCORS: true, 
-                scale: 3, // Lebih tajam
+                scale: 3,
                 backgroundColor: null
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Memori_${userData.murid}_${userData.idol}.png`;
+                link.download = `DreamTale_${userData.murid}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
