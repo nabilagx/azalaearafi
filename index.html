@@ -13,6 +13,14 @@
         body { font-family: 'Quicksand', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .font-fairy { font-family: 'Dancing Script', cursive; }
         
+        .slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
         /* Patterns */
         .motif-checkers { background-image: repeating-conic-gradient(#fff 0% 25%, #ffe4e6 0% 50%); background-size: 20px 20px; }
         .motif-stars { background-color: #fff1f2; background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0l2.5 7.5H20l-6 4.5 2.5 7.5-6.5-5-6.5 5 2.5-7.5-6-4.5h7.5L10 0z' fill='%23f43f5e' fill-opacity='0.1'/%3E%3C/svg%3E"); }
@@ -464,16 +472,26 @@
         }
 
         function downloadStrip(e) {
-            e.preventDefault();
+            if(e) e.preventDefault();
             const strip = document.getElementById('photo-strip');
+            
+            // Trik: Kasih tahu html2canvas buat pakai ukuran asli pixel, bukan skala layar HP yang nipu
             html2canvas(strip, { 
                 useCORS: true, 
-                scale: 3,
-                backgroundColor: null
+                scale: 3, // Resolusi tinggi & stabil
+                backgroundColor: null,
+                logging: false,
+                width: strip.offsetWidth,
+                height: strip.offsetHeight,
+                onclone: (clonedDoc) => {
+                    // Pastikan di versi "copy"-an buat foto, gambarnya nggak ketarik
+                    const clonedStrip = clonedDoc.getElementById('photo-strip');
+                    clonedStrip.style.transform = "none"; 
+                }
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `DreamTale_${userData.murid}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.download = `DreamTale_${userData.murid}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
             });
         }
